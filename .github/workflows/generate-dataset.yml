@@ -1,40 +1,42 @@
 name: 🚀 Generate Employment Law Dataset (Groq)
 
 on:
-  workflow_dispatch:  # Trigger manually from GitHub UI
+  workflow_dispatch:
 
 jobs:
   generate:
     runs-on: ubuntu-latest
+
     strategy:
+      max-parallel: 1  # ✅ Run batches one-by-one to avoid rate limiting
       matrix:
         batch: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 
     steps:
-    - name: 📥 Checkout code
-      uses: actions/checkout@v3
-      with:
-        persist-credentials: true  # Required for pushing
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v3
 
-    - name: 🐍 Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.10"
+      - name: 💾 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-    - name: 📦 Install dependencies
-      run: pip install groq
+      - name: 📦 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install groq
 
-    - name: 🧠 Generate batch ${{ matrix.batch }}
-      env:
-        GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-      run: |
-        echo "Running batch ${{ matrix.batch }}"
-        python main.py
+      - name: 🧠 Generate batch ${{ matrix.batch }}
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: |
+          echo "Running batch ${{ matrix.batch }}"
+          python main.py
 
-    - name: 📤 Commit updated dataset
-      run: |
-        git config user.name "github-actions"
-        git config user.email "github-actions@github.com"
-        git add employment_dataset.jsonl
-        git commit -m "📄 Add batch ${{ matrix.batch }} to dataset"
-        git push
+      - name: 📤 Commit updated dataset
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add employment_dataset.jsonl
+          git commit -m "📄 Add batch ${{ matrix.batch }} to dataset"
+          git push
