@@ -37,6 +37,8 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+          git pull --rebase origin main  # ✅ get latest updates before pushing
           git add employment_dataset.jsonl
           git commit -m "📄 Add batch ${{ matrix.batch }} to dataset"
           git push
+
